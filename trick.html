@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>نموذج تسجيل دخول</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #eef2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .form-container {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 300px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .form-group {
+      position: relative;
+      margin-bottom: 25px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px 10px 10px 5px;
+      font-size: 16px;
+      border: none;
+      border-bottom: 2px solid #ccc;
+      background: transparent;
+      outline: none;
+    }
+
+    label {
+      position: absolute;
+      top: 10px;
+      left: 5px;
+      color: #aaa;
+      font-size: 16px;
+      pointer-events: none;
+      transition: 0.2s ease all;
+    }
+
+    input:focus ~ label,
+    input:valid ~ label {
+      top: -10px;
+      font-size: 12px;
+      color: #007bff;
+    }
+
+    .toggle-password {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+      font-size: 18px;
+      user-select: none;
+    }
+
+    .login-btn {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .login-btn:hover {
+      background-color: #0056b3;
+    }
+
+    .message {
+      margin-top: 15px;
+      color: red;
+      font-size: 14px;
+    }
+
+    .message.success {
+      color: green;
+    }
+
+    .link {
+      margin-top: 10px;
+      color: #007bff;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+<div class="form-container">
+
+  <!-- login form -->
+  <div id="login-view">
+    <h2>تسجيل الدخول</h2>
+    <form id="loginForm">
+      <div class="form-group">
+        <input type="text" id="login-username" required />
+        <label for="login-username">اسم المستخدم</label>
+      </div>
+
+      <div class="form-group password-group">
+        <input type="password" id="login-password" required />
+        <label for="login-password">كلمة المرور</label>
+        <span class="toggle-password">👁️</span>
+      </div>
+
+      <button type="submit" class="login-btn">دخول</button>
+      <p class="link" id="show-register">ليس لديك حساب؟ سجل الآن</p>
+    </form>
+  </div>
+
+  <!-- register form -->
+  <div id="register-view" style="display: none;">
+    <h2>إنشاء حساب</h2>
+    <form id="registerForm">
+      <div class="form-group">
+        <input type="text" id="register-username" required />
+        <label for="register-username">اسم المستخدم</label>
+      </div>
+
+      <div class="form-group password-group">
+        <input type="password" id="register-password" required />
+        <label for="register-password">كلمة المرور</label>
+      </div>
+
+      <button type="submit" class="login-btn">تسجيل</button>
+      <p class="link" id="show-login">لديك حساب؟ تسجيل الدخول</p>
+    </form>
+  </div>
+
+  <!-- welcome view -->
+  <div id="welcome-view" style="display: none;">
+    <h2>مرحبًا <span id="welcome-user"></span> 👋</h2>
+    <button id="logout-btn" class="login-btn">تسجيل الخروج</button>
+    <button id="reset-btn" class="login-btn" style="background-color:#ffc107;">تغيير كلمة المرور</button>
+  </div>
+
+  <!-- reset password view -->
+  <div id="reset-view" style="display: none;">
+    <h2>إعادة تعيين كلمة المرور</h2>
+    <form id="resetForm">
+      <div class="form-group">
+        <input type="password" id="new-password" required />
+        <label for="new-password">كلمة المرور الجديدة</label>
+      </div>
+      <button type="submit" class="login-btn">تحديث</button>
+      <p class="link" id="cancel-reset">إلغاء</p>
+    </form>
+  </div>
+
+  <div id="message" class="message"></div>
+</div>
+
+<script>
+  const togglePassword = document.querySelector(".toggle-password");
+  const loginForm = document.getElementById("loginForm");
+  const registerForm = document.getElementById("registerForm");
+  const loginView = document.getElementById("login-view");
+  const registerView = document.getElementById("register-view");
+  const welcomeView = document.getElementById("welcome-view");
+  const resetView = document.getElementById("reset-view");
+
+  const showRegister = document.getElementById("show-register");
+  const showLogin = document.getElementById("show-login");
+  const logoutBtn = document.getElementById("logout-btn");
+  const resetBtn = document.getElementById("reset-btn");
+  const resetForm = document.getElementById("resetForm");
+  const cancelReset = document.getElementById("cancel-reset");
+  const welcomeUser = document.getElementById("welcome-user");
+  const message = document.getElementById("message");
+
+  togglePassword.addEventListener("click", () => {
+    const input = document.getElementById("login-password");
+    const isPassword = input.type === "password";
+    input.type = isPassword ? "text" : "password";
+    togglePassword.textContent = isPassword ? "🙈" : "👁️";
+  });
+
+  showRegister.onclick = () => {
+    loginView.style.display = "none";
+    registerView.style.display = "block";
+    message.textContent = "";
+  };
+
+  showLogin.onclick = () => {
+    loginView.style.display = "block";
+    registerView.style.display = "none";
+    message.textContent = "";
+  };
+
+  registerForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    const username = document.getElementById("register-username").value.trim();
+    const password = document.getElementById("register-password").value.trim();
+
+    localStorage.setItem("user", JSON.stringify({ username, password }));
+    message.textContent = "تم إنشاء الحساب بنجاح ✅";
+    message.classList.add("success");
+    registerView.style.display = "none";
+    loginView.style.display = "block";
+  });
+
+  loginForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    const username = document.getElementById("login-username").value.trim();
+    const password = document.getElementById("login-password").value.trim();
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (user && user.username === username && user.password === password) {
+      message.textContent = "";
+      loginView.style.display = "none";
+      welcomeView.style.display = "block";
+      welcomeUser.textContent = user.username;
+    } else {
+      message.textContent = "بيانات الدخول غير صحيحة ❌";
+      message.classList.remove("success");
+    }
+  });
+
+  logoutBtn.addEventListener("click", () => {
+    welcomeView.style.display = "none";
+    loginView.style.display = "block";
+    welcomeUser.textContent = "";
+    message.textContent = "تم تسجيل الخروج بنجاح ✅";
+    message.classList.add("success");
+  });
+
+  resetBtn.addEventListener("click", () => {
+    welcomeView.style.display = "none";
+    resetView.style.display = "block";
+    message.textContent = "";
+  });
+
+  cancelReset.onclick = () => {
+    resetView.style.display = "none";
+    welcomeView.style.display = "block";
+  };
+
+  resetForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    const newPass = document.getElementById("new-password").value.trim();
+    let user = JSON.parse(localStorage.getItem("user"));
+
+    if (newPass && user) {
+      user.password = newPass;
+      localStorage.setItem("user", JSON.stringify(user));
+      message.textContent = "تم تحديث كلمة المرور بنجاح 🔐";
+      message.classList.add("success");
+      resetView.style.display = "none";
+      loginView.style.display = "block";
+    }
+  });
+</script>
+
+</body>
+</html>
